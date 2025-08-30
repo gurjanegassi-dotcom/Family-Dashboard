@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Our Family Resettlement Dashboard</title>
+  <link rel="stylesheet"
+  href="style.ccs">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Family Resettlement Dashboard</h1>
+
+    <div class="card">
+        <h2>Data Management</h2>
+        <button id="saveBtn" class="data-btn">Save Data to File</button>
+        <button id="loadBtn" class="data-btn">Load Data from File</button>
+        <input type="file" id="fileInput" accept=".json"> <!-- This is hidden but we need it -->
+    </div>
+
+    <div class="card">
+        <h2>Documents Tracker</h2>
+        <div class="input-group">
+            <input type="text" id="docInput" placeholder="Add new document name...">
+            <button id="addDocBtn">Add Document</button>
+        </div>
+        <ul id="document-list"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Timeline & Communication Log</h2>
+        <div class="input-group">
+            <input type="text" id="logInput" placeholder="Add new log entry...">
+            <button id="addLogBtn">Add Log</button>
+        </div>
+        <ul id="timeline-list"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

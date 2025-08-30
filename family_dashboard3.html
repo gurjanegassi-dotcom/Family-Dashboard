@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Our Family Resettlement Dashboard</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #f4f7f9; color: #333; line-height: 1.6; padding: 20px; }
+    .container { max-width: 900px; margin: auto; }
+    h1, h2 { color: #0056b3; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
+    .card { background-color: #ffffff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+    
+    /* --- Status Colors --- */
+    .status-label { font-weight: bold; padding: 3px 8px; border-radius: 4px; color: white; }
+    .status-Submitted { background-color: #28a745; }
+    .status-Pending { background-color: #ffc107; color: #333; }
+    .status-Scanned { background-color: #17a2b8; }
+
+    /* --- Form Elements --- */
+    input[type="text"], select { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; min-width: 250px; font-size: 1em; }
+    button { padding: 10px 18px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+    button:hover { background-color: #004494; }
+    
+    /* --- Lists --- */
+    ul { list-style-type: none; padding-left: 0; }
+    li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    li:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Family Resettlement Dashboard</h1>
+
+    <div class="card">
+        <h2>Documents Tracker</h2>
+        <ul id="document-list">
+            <!-- Document items will be dynamically added here by JavaScript -->
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Timeline & Communication Log</h2>
+        <div>
+            <input type="text" id="logInput" placeholder="Add new log entry...">
+            <button id="addLogBtn">Add Log</button>
+        </div>
+        <ul id="timeline-list">
+            <!-- Log entries will be loaded here from memory -->
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Interview Preparation</h2>
+        <h3>Common Questions:</h3>
+        <ul>
+            <li><span>Why did you leave your country?</span></li>
+            <li><span>What challenges did you face?</span></li>
+        </ul>
+    </div>
+  </div>
+
+  <script>
+    // --- PART 1: DOCUMENT TRACKER ---
+    const documentListElement = document.getElementById('document-list');
+    let documents = JSON.parse(localStorage.getItem('documents')) || [
+        { name: 'UNHCR Registration Paper', status: 'Submitted' },
+        { name: 'ID (Father)', status: 'Scanned' },
+        { name: 'ID ', status: 'Pending' },
+        { name: 'Birth Certificate (Sami)', status: 'Submitted' }
+    ];
+
+    function saveDocuments() {
+        localStorage.setItem('documents', JSON.stringify(documents));
+    }
+
+    function renderDocuments() {
+        documentListElement.innerHTML = ''; 
+        documents.forEach((doc, index) => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span>${doc.name}</span>
+                <select class="status-select" data-index="${index}">
+                    <option value="Pending" ${doc.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Submitted" ${doc.status === 'Submitted' ? 'selected' : ''}>Submitted</option>
+                    <option value="Scanned" ${doc.status === 'Scanned' ? 'selected' : ''}>Scanned, Ready</option>
+                </select>
+            `;
+            documentListElement.appendChild(listItem);
+        });
+    }
+    
+    documentListElement.addEventListener('change', function(event) {
+        if (event.target.classList.contains('status-select')) {
+            const selectedIndex = event.target.dataset.index;
+            const newStatus = event.target.value;
+            documents[selectedIndex].status = newStatus;
+            saveDocuments(); // Save the new status to memory
+            // We don't need to re-render, the dropdown shows the change.
+        }
+    });
+
+    // --- PART 2: TIMELINE LOG WITH MEMORY ---
+    const addLogBtn = document.getElementById('addLogBtn');
+    const logInput = document.getElementById('logInput');
+    const timelineListElement = document.getElementById('timeline-list');
+    let timelineLogs = JSON.parse(localStorage.getItem('timelineLogs')) || [];
+
+    function renderLogs() {
+        timelineListElement.innerHTML = '';
+        timelineLogs.forEach(log => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<span><strong>${log.date}:</strong> ${log.text}</span>`;
+            timelineListElement.appendChild(listItem);
+        });
+    }
+
+    function saveLogs() {
+        localStorage.setItem('timelineLogs', JSON.stringify(timelineLogs));
+    }
+
+    addLogBtn.addEventListener('click', function() {
+        const newLogText = logInput.value.trim();
+        if (newLogText === "") { return; }
+
+        const today = new Date();
+        const dateString = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        timelineLogs.unshift({ date: dateString, text: newLogText });
+        
+        renderLogs();
+        saveLogs();
+        
+        logInput.value = "";
+    });
+
+    // --- INITIALIZE THE PAGE ---
+    renderDocuments();
+    renderLogs();
+  </script>
+
+</body>
+</html>
